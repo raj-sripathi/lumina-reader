@@ -127,13 +127,13 @@ export default function ContentCard({ item, onDelete, onMarkAsRead, onUpdate }: 
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Custom Prompt (optional)
                     </label>
-                    <textarea
-                      value={customPrompt}
-                      onChange={(e) => setCustomPrompt(e.target.value)}
-                      placeholder="Enter custom prompt for digest... (leave empty to use default prompt)"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      rows={4}
-                    />
+                      <textarea
+                        value={customPrompt}
+                        onChange={(e) => setCustomPrompt(e.target.value)}
+                        placeholder="Enter custom prompt for digest... (leave empty to use default prompt)"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        rows={4}
+                      />
                     <div className="flex gap-2 mt-2">
                       <button
                         onClick={() => handleGenerateDigest(customPrompt)}
@@ -179,7 +179,7 @@ export default function ContentCard({ item, onDelete, onMarkAsRead, onUpdate }: 
                       value={customPrompt}
                       onChange={(e) => setCustomPrompt(e.target.value)}
                       placeholder="Enter custom prompt for digest..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none mb-2"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none text-gray-900 mb-2"
                       rows={3}
                     />
                     <div className="flex gap-2">
