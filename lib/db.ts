@@ -25,7 +25,7 @@ function getSqliteDb(): import('better-sqlite3').Database {
     const Database = require('better-sqlite3');
     sqliteDb = new Database(dbPath);
   }
-  return sqliteDb;
+  return sqliteDb!;
 }
 
 async function ensureSchema(): Promise<void> {
