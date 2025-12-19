@@ -17,10 +17,10 @@ export interface ReadingItem {
 
 const dbPath = path.join(process.cwd(), 'lumina.db');
 const usePostgres = Boolean(process.env.VERCEL || process.env.POSTGRES_URL);
-let sqliteDb: import('better-sqlite3').Database | null = null;
+let sqliteDb: import('better-sqlite3').Database | undefined;
 let schemaReady: Promise<void> | null = null;
 
-function getSqliteDb() {
+function getSqliteDb(): import('better-sqlite3').Database {
   if (!sqliteDb) {
     const Database = require('better-sqlite3');
     sqliteDb = new Database(dbPath);
