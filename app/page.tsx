@@ -1,65 +1,162 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import EmptyState from '@/components/EmptyState';
+import ContentCard from '@/components/ContentCard';
+import AddModal from '@/components/AddModal';
+import Header from '@/components/Header';
+
+export interface ReadingItem {
+  id: number;
+  type: 'url' | 'pdf';
+  title: string;
+  url?: string;
+  file_path?: string;
+  file_name?: string;
+  digest?: string;
+  digest_prompt?: string;
+  date_added: number;
+  is_read: number;
+  metadata?: string;
+}
+
+type FilterType = 'all' | 'unread' | 'archived';
 
 export default function Home() {
+  const [items, setItems] = useState<ReadingItem[]>([]);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterType>('unread');
+
+  const fetchItems = async () => {
+    try {
+      const res = await fetch('/api/items');
+      const data = await res.json();
+      setItems(data.items || []);
+    } catch (error) {
+      console.error('Error fetching items:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filteredItems = items.filter(item => {
+    if (filter === 'all') return true;
+    if (filter === 'unread') return !item.is_read;
+    if (filter === 'archived') return item.is_read;
+    return true;
+  });
+
+  const unreadCount = items.filter(item => !item.is_read).length;
+  const archivedCount = items.filter(item => item.is_read).length;
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const handleAddItem = () => {
+    setIsAddModalOpen(false);
+    fetchItems();
+  };
+
+  const handleDeleteItem = async (id: number) => {
+    try {
+      await fetch(`/api/items/${id}`, { method: 'DELETE' });
+      fetchItems();
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
+  };
+
+  const handleMarkAsRead = async (id: number, isRead: boolean) => {
+    try {
+      await fetch(`/api/items/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_read: isRead ? 1 : 0 })
+      });
+      fetchItems();
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-gray-50">
+      <Header onAddClick={() => setIsAddModalOpen(true)} />
+
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Filter Tabs */}
+        {items.length > 0 && (
+          <div className="flex gap-2 mb-6 bg-white border border-gray-200 rounded-lg p-1 w-fit">
+            <button
+              onClick={() => setFilter('unread')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                filter === 'unread'
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Reading List {unreadCount > 0 && `(${unreadCount})`}
+            </button>
+            <button
+              onClick={() => setFilter('archived')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                filter === 'archived'
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+              Archived {archivedCount > 0 && `(${archivedCount})`}
+            </button>
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                filter === 'all'
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              All ({items.length})
+            </button>
+          </div>
+        )}
+
+        {/* Content */}
+        {isLoading ? (
+          <div className="text-center py-20 text-gray-500">Loading...</div>
+        ) : items.length === 0 ? (
+          <EmptyState onAddClick={() => setIsAddModalOpen(true)} />
+        ) : filteredItems.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-gray-500 mb-2">
+              {filter === 'archived' ? 'No archived items yet' : 'No items in this view'}
+            </p>
+            <p className="text-sm text-gray-400">
+              {filter === 'archived' ? 'Mark items as read to archive them' : 'Try changing your filter'}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredItems.map((item) => (
+              <ContentCard
+                key={item.id}
+                item={item}
+                onDelete={() => handleDeleteItem(item.id)}
+                onMarkAsRead={(isRead) => handleMarkAsRead(item.id, isRead)}
+                onUpdate={fetchItems}
+              />
+            ))}
+          </div>
+        )}
       </main>
+
+      {isAddModalOpen && (
+        <AddModal
+          onClose={() => setIsAddModalOpen(false)}
+          onAdd={handleAddItem}
+        />
+      )}
     </div>
   );
 }

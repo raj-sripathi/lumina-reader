@@ -9,13 +9,22 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@napi-rs/canvas": "^0.1.84",
+    "axios": "^1.13.2",
+    "better-sqlite3": "^12.5.0",
+    "canvas": "^3.2.0",
+    "cheerio": "^1.1.2",
     "next": "16.0.10",
+    "pdf-parse-fork": "^1.2.0",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
+    "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
