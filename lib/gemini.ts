@@ -9,7 +9,7 @@ export const DEFAULT_DIGEST_PROMPT = `Please provide a concise summary of this c
 - Important takeaways
 - Any notable conclusions or recommendations
 
-Keep the summary clear and informative, around 3-5 paragraphs.`;
+Keep the summary clear and informative, around 3-5 paragraphs. Use bullets for clarity where appropriate.`;
 
 export async function generateDigest(content: string, customPrompt?: string): Promise<string> {
   try {
