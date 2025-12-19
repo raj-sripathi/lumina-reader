@@ -17,7 +17,7 @@ export async function generateDigest(content: string, customPrompt?: string): Pr
     const fullPrompt = `${prompt}\n\nContent:\n${content}`;
 
     const response = await openai.responses.create({
-      model: 'gpt-5',
+      model: 'gpt-5-nano',
       input: fullPrompt
     });
 
