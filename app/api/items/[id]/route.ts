@@ -16,7 +16,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Get item to clean up files
-    const item = dbOperations.getItemById(itemId);
+    const item = await dbOperations.getItemById(itemId);
 
     if (item) {
       // Delete associated files
@@ -30,7 +30,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     }
 
-    dbOperations.deleteItem(itemId);
+    await dbOperations.deleteItem(itemId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting item:', error);
@@ -48,9 +48,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    dbOperations.updateItem(itemId, body);
+    await dbOperations.updateItem(itemId, body);
 
-    const updatedItem = dbOperations.getItemById(itemId);
+    const updatedItem = await dbOperations.getItemById(itemId);
     return NextResponse.json({ item: updatedItem });
   } catch (error) {
     console.error('Error updating item:', error);

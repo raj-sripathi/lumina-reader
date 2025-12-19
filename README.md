@@ -9,7 +9,7 @@ A reading list management app built with Next.js that allows you to save URLs an
 - **AI Digests**: Generate concise summaries using Google's Gemini AI
 - **Custom Prompts**: Edit the digest prompt to customize how content is summarized
 - **Mark as Read**: Track your reading progress
-- **SQLite Database**: Local storage for all your reading items
+- **Hybrid Database**: SQLite locally, Vercel Postgres in production
 
 ## Prerequisites
 
@@ -90,7 +90,7 @@ lumina-reader/
 │   ├── AddModal.tsx
 │   └── ContentCard.tsx
 ├── lib/                  # Utilities and database
-│   ├── db.ts            # SQLite database setup
+│   ├── db.ts            # SQLite (local) + Postgres (Vercel) database setup
 │   ├── gemini.ts        # Gemini AI integration
 │   ├── content-processor.ts  # URL/PDF processing
 └── uploads/             # Stored PDFs (created automatically)
@@ -102,8 +102,10 @@ lumina-reader/
 - **TypeScript**: Type-safe development
 - **Tailwind CSS**: Utility-first styling
 - **SQLite**: Local database storage
+- **Vercel Postgres**: Production database
 - **Google Gemini AI**: AI-powered content summarization
 - **better-sqlite3**: SQLite database driver
+- **@vercel/postgres**: Postgres client for Vercel
 - **pdf-parse**: PDF text extraction
 - **cheerio**: HTML parsing for URL content extraction
 
@@ -117,16 +119,11 @@ lumina-reader/
 
 ## Deployment to Vercel
 
-The current setup uses SQLite and local file storage, which works great for local development but has limitations on serverless platforms like Vercel. For production deployment, you'll need to set up cloud storage.
+This project uses SQLite locally and switches to Vercel Postgres automatically when `POSTGRES_URL` or `VERCEL` is set. Vercel Postgres has a free tier, so you can start without spending as long as you stay within its limits.
 
 ### Production Setup (Vercel)
 
 #### 1. Database - Vercel Postgres
-
-```bash
-# Install Vercel Postgres
-npm install @vercel/postgres
-```
 
 Create a Postgres database in your Vercel dashboard and add the connection string to your environment variables.
 
@@ -149,30 +146,26 @@ POSTGRES_URL=your_postgres_connection_string
 BLOB_READ_WRITE_TOKEN=your_blob_token
 ```
 
-#### 4. Migration Steps
+#### 4. Optional File Storage Migration
 
-To migrate from SQLite to Postgres + Blob Storage:
+To move file storage to Vercel Blob:
 
-1. **Update `lib/db.ts`**: Replace SQLite with Vercel Postgres
-   - Use `@vercel/postgres` for database operations
-   - Keep the same schema structure
-
-2. **Update `lib/content-processor.ts`**:
+1. **Update `lib/content-processor.ts`**:
    - Replace file system storage with Vercel Blob
    - Use `put()` to upload PDFs to blob storage
    - Store blob URLs in the database instead of file paths
 
-3. **Update API routes**:
+2. **Update API routes**:
    - Replace file reads with blob fetches
 
-### Alternative: Keep Local Development Setup
+### Local Development
 
-The current SQLite + file storage setup will continue to work locally. The code already detects serverless environments and uses `/tmp` for temporary files on Vercel.
+Local development keeps using SQLite + file storage automatically.
 
 **Important Notes:**
 - Files in `/tmp` on Vercel are ephemeral (deleted after function execution)
-- SQLite database will reset between deployments on Vercel
-- For a production-ready Vercel deployment, migrate to Postgres + Blob Storage
+- Postgres data persists across deployments when `POSTGRES_URL` is set
+- For a production-ready Vercel deployment, use Postgres + Blob Storage
 
 ## Local Development Notes
 

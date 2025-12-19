@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Item ID required' }, { status: 400 });
     }
 
-    const item = dbOperations.getItemById(itemId);
+    const item = await dbOperations.getItemById(itemId);
 
     if (!item) {
       return NextResponse.json({ error: 'Item not found' }, { status: 404 });
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const digest = await generateDigest(content, customPrompt);
 
     // Update item with digest
-    dbOperations.updateDigest(itemId, digest, customPrompt);
+    await dbOperations.updateDigest(itemId, digest, customPrompt);
 
     return NextResponse.json({ digest });
   } catch (error) {

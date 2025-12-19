@@ -4,7 +4,7 @@ import { extractUrlContent, savePdfFile } from '@/lib/content-processor';
 
 export async function GET() {
   try {
-    const items = dbOperations.getAllItems();
+    const items = await dbOperations.getAllItems();
     return NextResponse.json({ items });
   } catch (error) {
     console.error('Error fetching items:', error);
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const filePath = await savePdfFile(buffer, file.name);
 
-      const itemId = dbOperations.addItem({
+      const itemId = await dbOperations.addItem({
         type: 'pdf',
         title: file.name.replace('.pdf', ''),
         file_path: filePath,
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         is_read: false
       });
 
-      const item = dbOperations.getItemById(itemId);
+      const item = await dbOperations.getItemById(itemId);
       return NextResponse.json({ item });
     } else {
       // Handle URL
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
       const metadata = await extractUrlContent(url);
 
-      const itemId = dbOperations.addItem({
+      const itemId = await dbOperations.addItem({
         type: 'url',
         title: metadata.title,
         url: metadata.url,
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         metadata: JSON.stringify({ content: metadata.content })
       });
 
-      const item = dbOperations.getItemById(itemId);
+      const item = await dbOperations.getItemById(itemId);
       return NextResponse.json({ item });
     }
   } catch (error) {

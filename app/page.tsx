@@ -16,7 +16,7 @@ export interface ReadingItem {
   digest?: string;
   digest_prompt?: string;
   date_added: number;
-  is_read: number;
+  is_read: boolean;
   metadata?: string;
 }
 
@@ -73,7 +73,7 @@ export default function Home() {
       await fetch(`/api/items/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_read: isRead ? 1 : 0 })
+        body: JSON.stringify({ is_read: isRead })
       });
       fetchItems();
     } catch (error) {
